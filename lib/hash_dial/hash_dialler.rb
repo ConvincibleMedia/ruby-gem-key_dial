@@ -4,7 +4,7 @@ module HashDial
 
 		@hash
 		@lookup
-		@@default = nil
+		@default = nil
 
 		def initialize(hash, *lookup)
 			if hash.is_a?(Hash)
@@ -13,24 +13,36 @@ module HashDial
 				@hash = {}
 			end
 			@lookup = []
+			if lookup.length > 0
+				dial!(*lookup)
+			end
 		end
 
-		def dial!(key)
+		def dial!(*keys)
 			#unless key.is_a(Symbol) || key.is_a(String)
-			@lookup.push(key)
+			@lookup += keys
 			return self
 		end
 
-		def call
+		def call(default = nil)
 			begin
 				value = @hash.dig(*@lookup)
 			rescue
-				value = @@default
+				value = default
 			end
 			return value
 		end
 
+		def hangup
+			return @hash
+		end
+
 		def undial!(*keys)
+			if keys.length > 0
+				@lookup -= keys
+			elsif @lookup.length > 0
+				@lookup.pop
+			end
 			return self
 		end
 
@@ -42,10 +54,6 @@ module HashDial
 		end
 		def -(key)
 			return undial!(key)
-		end
-
-		class << self
-			attr_accessor :default
 		end
 
 	end
