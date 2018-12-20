@@ -13,19 +13,6 @@ Gem::Specification.new do |spec|
   spec.description   = "Avoid all errors when accessing a (deeply nested) Hash key. HashDial goes one step beyond Hash::dig() by returning nil (or your default) if the keys requested are invalid for any reason at all. Bonus: you don't even need to fiddle with existing code. If you have already written something to access a deep hash key, just surround this with '.dial' and '.call'."
   spec.homepage      = "https://github.com/ConvincibleMedia/hash_dial"
 
-  # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
-  # to allow pushing to a single host or delete this section to allow pushing to any host.
-  if spec.respond_to?(:metadata)
-    spec.metadata["allowed_push_host"] = "TODO: Set to 'http://mygemserver.com'"
-
-    spec.metadata["homepage_uri"] = spec.homepage
-    spec.metadata["source_code_uri"] = spec.homepage
-    spec.metadata["changelog_uri"] = spec.homepage
-  else
-    raise "RubyGems 2.0 or newer is required to protect against " \
-      "public gem pushes."
-  end
-
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
   spec.files         = Dir.chdir(File.expand_path('..', __FILE__)) do
