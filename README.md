@@ -11,7 +11,7 @@ hash.call(:a, :d, :c) #=> nil
 hash.call(:a, :b, :c) #=> true
 ```
 
-**Bonus: you don't need to fiddle with existing code.** If you have already written something to access a deep hash key, just surround this with `dial` and `call` (rather than changing it to the form above as function parameters).
+**Bonus: you don't even need to fiddle with existing code.** If you have already written something to access a deep hash key, just surround this with `dial` and `call` (rather than changing it to the form above as function parameters).
 
 ```ruby
  hash[:a][:d][:c] #=> TypeError: no implicit conversion of Symbol into Integer
@@ -53,7 +53,7 @@ require 'hash_dial'
 If you want to follow this pattern, it works in the same way. You can't change the default return value when using this pattern.
 
 ```ruby
-hash.call(:a, :b, :c) #=> Returns the value or nil
+hash.call(:a, :b, :c) #=> Returns the value at hash[:a][:b][:c] or nil
 ```
 
 ### Use it like a Hash -- allows default return value
