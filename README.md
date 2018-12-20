@@ -1,8 +1,30 @@
 # HashDial
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/hash_dial`. To experiment with that code, run `bin/console` for an interactive prompt.
+**Avoid all errors when accessing a deeply nested Hash key.** HashDial goes one step beyond Hash::dig() by returning nil (or your default) if the keys requested are invalid for any reason.
 
-TODO: Delete this and the text above, and describe your gem
+In particular, if you try to access a key on a value that isn't a hash, dig() will cause an error where HashDial will not.
+
+```ruby
+hash = {a: {b: {c: true}, d: 5}}
+hash.dig( :a, :d, :c) #=> TypeError: Integer does not have #dig method
+hash.call(:a, :d, :c) #=> nil
+hash.call(:a, :b, :c) #=> true
+```
+
+**Bonus: you don't need to fiddle with existing code.** If you have already written something to access a deep hash key, just surround this with `dial` and `call` (rather than changing it to the form above as function parameters).
+
+```ruby
+ hash[:a][:d][:c] #=> TypeError: no implicit conversion of Symbol into Integer
+#hash →   [:a][:d][:c]
+#     ↓                ↓
+ hash.dial[:a][:d][:c].call #=> nil
+```
+
+## Explanation
+
+We use the concept of placing a phone-call: you can 'dial' any set of keys regardless of whether they exist (like entering a phone number), then finally place the 'call'. If the key is invalid for any reason you get nil/default (like a wrong number); otherwise you get the value (you're connected).
+
+This works by intermediating your request with a HashDialler object. Trying to access keys on this object simply builds up a list of keys to use when you later place the 'call'.
 
 ## Installation
 
@@ -22,14 +44,36 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+require 'hash_dial'
+```
 
-## Development
+### Use it like dig()
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+If you want to follow this pattern, it works in the same way. You can't change the default return value when using this pattern.
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+```ruby
+hash.call(:a, :b, :c) #=> Returns the value or nil
+```
 
-## Contributing
+### Use it like a Hash -- allows default return value
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/hash_dial.
+```ruby
+hash.dial[:a][:b][:c].call #=> Returns the value at hash[:a][:b][:c] or nil
+hash.dial[:a][:b][:c].call('Ooops') #=> Returns the value at hash[:a][:b][:c] or 'Ooops'
+```
+
+If you don't do this all in one line, you can access the HashDialler object should you want to manipulate it:
+
+```ruby
+dialler = hash.dial # Returns a HashDialler object referencing hash
+dialler[:a] # Adds :a to the list of keys to dial (returns self)
+dialler.dial!(:b, :c) # Longhand way of adding more keys (returns self)
+dialler.undial! # Removes the last-added key (returns self)
+dialler[:c][:d] # Adds two more keys (returns self)
+dialler += :e # Adds yet one more (returns self)
+dialler -= :a # Removes all such keys from the list (returns self)
+# So far we have dialled [:b][:c][:d][:e]
+dialler.call #=> Returns the value at hash[:b][:c][:d][:e] or nil
+dialler.hangup #=> Returns the original hash by reference
+```
