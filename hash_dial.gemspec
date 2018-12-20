@@ -9,8 +9,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Convincible"]
   spec.email         = ["development@convincible.media"]
 
-  spec.summary       = "Improves on Hash::dig() by returning a hash value or nil on any error."
-  spec.description   = "Improves on Hash::dig() by returning a hash value or nil on any error."
+  spec.summary       = "Access (deeply nested) hash keys. Get the value, or nil on any error. (Even safer than Hash::dig)."
+  spec.description   = "Avoid all errors when accessing a (deeply nested) Hash key. HashDial goes one step beyond Hash::dig() by returning nil (or your default) if the keys requested are invalid for any reason at all. Bonus: you don't even need to fiddle with existing code. If you have already written something to access a deep hash key, just surround this with '.dial' and '.call'."
   spec.homepage      = "https://github.com/ConvincibleMedia/hash_dial"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
