@@ -7,11 +7,11 @@ Gem::Specification.new do |spec|
   spec.name          = "hash_dial"
   spec.version       = HashDial::VERSION
   spec.authors       = ["Convincible"]
-  spec.email         = ["webmaster@convincible.media"]
+  spec.email         = ["development@convincible.media"]
 
-  spec.summary       = %q{TODO: Write a short summary, because RubyGems requires one.}
-  spec.description   = %q{TODO: Write a longer description or delete this line.}
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.summary       = "Improves on Hash::dig() by returning a hash value or nil on any error."
+  spec.description   = "Improves on Hash::dig() by returning a hash value or nil on any error."
+  spec.homepage      = "https://github.com/ConvincibleMedia/hash_dial"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
   # to allow pushing to a single host or delete this section to allow pushing to any host.
@@ -19,8 +19,8 @@ Gem::Specification.new do |spec|
     spec.metadata["allowed_push_host"] = "TODO: Set to 'http://mygemserver.com'"
 
     spec.metadata["homepage_uri"] = spec.homepage
-    spec.metadata["source_code_uri"] = "TODO: Put your gem's public repo URL here."
-    spec.metadata["changelog_uri"] = "TODO: Put your gem's CHANGELOG.md URL here."
+    spec.metadata["source_code_uri"] = spec.homepage
+    spec.metadata["changelog_uri"] = spec.homepage
   else
     raise "RubyGems 2.0 or newer is required to protect against " \
       "public gem pushes."
