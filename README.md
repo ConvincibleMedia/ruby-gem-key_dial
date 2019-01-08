@@ -1,8 +1,8 @@
 # HashDial
 
-**Avoid all errors when accessing a deeply nested Hash key.** HashDial goes one step beyond Hash::dig() by returning nil (or your default) if the keys requested are invalid for any reason.
+**Avoid all errors when accessing a deeply nested Hash key.** HashDial goes one step beyond `Hash::dig()` by returning `nil` (or your default) if the keys requested are invalid for any reason.
 
-In particular, if you try to access a key on a value that isn't a hash, dig() will cause an error where HashDial will not.
+In particular, if you try to access a key on a value that isn't a hash, `dig()` will cause an error where HashDial will not.
 
 ```ruby
 hash = {a: {b: {c: true}, d: 5}}
