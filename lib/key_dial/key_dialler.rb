@@ -1,6 +1,6 @@
-module HashDial
+module KeyDial
 
-	class HashDialler
+	class KeyDialler
 
 		@obj_with_keys
 		@lookup
@@ -18,7 +18,7 @@ module HashDial
 			end
 		end
 
-		# Adds a hash key to the list of nested keys to try, one level deeper.
+		# Adds a key to the list of nested keys to try, one level deeper.
 		#
 		# @param keys The key to add. Multiple arguments would add multiple keys.
 		#
@@ -28,7 +28,7 @@ module HashDial
 			return self
 		end
 
-		# Digs into the hash to the list of keys specified by dialling. Returns nil or default if specified.
+		# Digs into the object to the list of keys specified by dialling. Returns nil or default if specified.
 		#
 		# @param default What to return if no key is found.
 		#
@@ -41,7 +41,7 @@ module HashDial
 			return value
 		end
 
-		# Return the original hash object.
+		# Return the original keyed object.
 		def hangup
 			return @obj_with_keys
 		end
@@ -59,7 +59,7 @@ module HashDial
 			return self
 		end
 
-		# The preferred way to build up your dialling list. Access HashDialler as if it were a Hash, e.g. hash[a][b][c]. This does not actually return any value, rather it dials those keys (awaiting a call).
+		# The preferred way to build up your dialling list. Access KeyDialler as if it were a keyed object, e.g. keydialler[a][b][c]. This does not actually return any value, rather it dials those keys (awaiting a call).
 		#
 		def [](key)
 			return dial!(key)

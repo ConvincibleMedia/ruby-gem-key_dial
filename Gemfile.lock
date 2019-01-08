@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    hash_dial (1.0.1)
+    key_dial (1.0.0)
 
 GEM
   remote: https://rubygems.org/
@@ -27,7 +27,7 @@ PLATFORMS
 
 DEPENDENCIES
   bundler (~> 1.17)
-  hash_dial!
+  key_dial!
   rake (~> 10.0)
   rspec (~> 3.0)
 

@@ -1,6 +1,6 @@
-RSpec.describe HashDial do
+RSpec.describe KeyDial do
     it "has a version number" do
-        expect(HashDial::VERSION).not_to be nil
+        expect(KeyDial::VERSION).not_to be nil
     end
 
     test_original = {a: {b: {c: true}, d: 5}}.freeze

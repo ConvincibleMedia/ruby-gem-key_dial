@@ -1,17 +1,17 @@
 
 lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "hash_dial/version"
+require "key_dial/version"
 
 Gem::Specification.new do |spec|
-    spec.name          = "hash_dial"
-    spec.version       = HashDial::VERSION
+    spec.name          = "key_dial"
+    spec.version       = KeyDial::VERSION
     spec.authors       = ["Convincible"]
     spec.email         = ["development@convincible.media"]
 
     spec.summary       = "Access (deeply nested) hash keys. Get the value, or nil on any error. (Even safer than Hash::dig)."
     spec.description   = "Avoid all errors when accessing (deeply nested) Hash keys. Safer than dig(), as will quietly return nil (or your default) if the keys requested are invalid for any reason at all. Bonus: you don't even need to fiddle with existing code. If you have already written something to access a deep hash key (e.g. hash[:a][:b][:c]), just surround this with '.dial' and '.call'."
-    spec.homepage      = "https://github.com/ConvincibleMedia/ruby-gem-hash_dial"
+    spec.homepage      = "https://github.com/ConvincibleMedia/ruby-gem-key_dial"
 
     # Specify which files should be added to the gem when it is released.
     # The `git ls-files -z` loads the files in the RubyGem that have been added into git.

@@ -1,5 +1,5 @@
 require "bundler/setup"
-require "hash_dial"
+require "key_dial"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
