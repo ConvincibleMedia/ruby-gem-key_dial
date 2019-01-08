@@ -14,7 +14,8 @@ hash.call(:a, :b, :c) #=> true
 **Bonus: you don't even need to fiddle with existing code.** If you have already written something to access a deep hash key, just surround this with `dial` and `call` (rather than changing it to the form above as function parameters).
 
 ```ruby
- hash[:a][:d][:c] #=> TypeError: no implicit conversion of Symbol into Integer
+ hash[:a][:d][:c]           #=> TypeError: no implicit conversion of Symbol into Integer
+
 #hash →   [:a][:d][:c]
 #     ↓                ↓
  hash.dial[:a][:d][:c].call #=> nil
@@ -25,22 +26,6 @@ hash.call(:a, :b, :c) #=> true
 We use the concept of placing a phone-call: you can 'dial' any set of keys regardless of whether they exist (like entering a phone number), then finally place the 'call'. If the key is invalid for any reason you get nil/default (like a wrong number); otherwise you get the value (you're connected).
 
 This works by intermediating your request with a HashDialler object. Trying to access keys on this object simply builds up a list of keys to use when you later place the 'call'.
-
-## Installation
-
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'hash_dial'
-```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install hash_dial
 
 ## Usage
 
@@ -53,14 +38,14 @@ require 'hash_dial'
 If you want to follow this pattern, it works in the same way. You can't change the default return value when using this pattern.
 
 ```ruby
-hash.call(:a, :b, :c) #=> Returns the value at hash[:a][:b][:c] or nil
+hash.call(:a, :b, :c) # Returns the value at hash[:a][:b][:c] or nil
 ```
 
 ### Use it like a Hash -- allows default return value
 
 ```ruby
-hash.dial[:a][:b][:c].call #=> Returns the value at hash[:a][:b][:c] or nil
-hash.dial[:a][:b][:c].call('Ooops') #=> Returns the value at hash[:a][:b][:c] or 'Ooops'
+hash.dial[:a][:b][:c].call          # Returns the value at hash[:a][:b][:c] or nil
+hash.dial[:a][:b][:c].call('Ooops') # Returns the value at hash[:a][:b][:c] or 'Ooops'
 ```
 
 If you don't do this all in one line, you can access the HashDialler object should you want to manipulate it:
@@ -74,6 +59,6 @@ dialler[:c][:d] # Adds two more keys (returns self)
 dialler += :e # Adds yet one more (returns self)
 dialler -= :a # Removes all such keys from the list (returns self)
 # So far we have dialled [:b][:c][:d][:e]
-dialler.call #=> Returns the value at hash[:b][:c][:d][:e] or nil
-dialler.hangup #=> Returns the original hash by reference
+dialler.call # Returns the value at hash[:b][:c][:d][:e] or nil
+dialler.hangup # Returns the original hash by reference
 ```

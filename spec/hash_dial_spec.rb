@@ -1,11 +1,9 @@
-require 'hash_dial'
-
 RSpec.describe HashDial do
     it "has a version number" do
         expect(HashDial::VERSION).not_to be nil
     end
 
-    test_original = {a: {b: {c: true}, d: 5}}
+    test_original = {a: {b: {c: true}, d: 5}}.freeze
     test =          {a: {b: {c: true}, d: 5}}
 
     # Shorthand

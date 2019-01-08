@@ -10,8 +10,8 @@ Gem::Specification.new do |spec|
     spec.email         = ["development@convincible.media"]
 
     spec.summary       = "Access (deeply nested) hash keys. Get the value, or nil on any error. (Even safer than Hash::dig)."
-    spec.description   = "Avoid all errors when accessing a (deeply nested) Hash key. HashDial goes one step beyond Hash::dig() by returning nil (or your default) if the keys requested are invalid for any reason at all. Bonus: you don't even need to fiddle with existing code. If you have already written something to access a deep hash key, just surround this with '.dial' and '.call'."
-    spec.homepage      = "https://github.com/ConvincibleMedia/hash_dial"
+    spec.description   = "Avoid all errors when accessing (deeply nested) Hash keys. Safer than dig(), as will quietly return nil (or your default) if the keys requested are invalid for any reason at all. Bonus: you don't even need to fiddle with existing code. If you have already written something to access a deep hash key (e.g. hash[:a][:b][:c]), just surround this with '.dial' and '.call'."
+    spec.homepage      = "https://github.com/ConvincibleMedia/ruby-gem-hash_dial"
 
     # Specify which files should be added to the gem when it is released.
     # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
