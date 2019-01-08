@@ -2,15 +2,15 @@ module HashDial
 
 	class HashDialler
 
-		@hash
+		@obj_with_keys
 		@lookup
 		@default = nil
 
-		def initialize(hash, *lookup)
-			if hash.is_a?(Hash)
-				@hash = hash
+		def initialize(obj_with_keys, *lookup)
+			if obj_with_keys.respond_to?(:dig)
+				@obj_with_keys = obj_with_keys
 			else
-				@hash = {}
+				raise ArgumentError.new('HashDialler must be initialized on a Hash, Array or Struct, or an object that responds to :dig.')
 			end
 			@lookup = []
 			if lookup.length > 0
@@ -34,7 +34,7 @@ module HashDial
 		#
 		def call(default = nil)
 			begin
-				value = @hash.dig(*@lookup)
+				value = @obj_with_keys.dig(*@lookup)
 			rescue
 				value = default
 			end
@@ -43,7 +43,7 @@ module HashDial
 
 		# Return the original hash object.
 		def hangup
-			return @hash
+			return @obj_with_keys
 		end
 
 		# Remove keys from the dialling list.

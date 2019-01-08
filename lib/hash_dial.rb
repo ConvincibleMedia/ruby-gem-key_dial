@@ -27,3 +27,11 @@ end
 class Hash
     include HashDial
 end
+
+class Array
+    include HashDial
+end
+
+class Struct
+    include HashDial
+end
