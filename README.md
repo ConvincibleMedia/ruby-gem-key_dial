@@ -1,4 +1,4 @@
-# HashDial
+# HashDial (Ruby Gem)
 
 **Avoid all errors when accessing a deeply nested Hash key.** HashDial goes one step beyond `Hash::dig()` by returning `nil` (or your default) if the keys requested are invalid for any reason.
 
