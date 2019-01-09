@@ -1,5 +1,5 @@
-require "hash_dial/version"
-require "hash_dial/hash_dialler"
+require "key_dial/version"
+require "key_dial/key_dialler"
 
 module KeyDial
 

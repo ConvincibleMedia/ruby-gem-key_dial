@@ -47,7 +47,9 @@ array.call(1, :a, 0) #=> true (i.e. array[1][:a][0])
 array.call(1, :b, 0) #=> nil (i.e. array[1][:b][0] doesn't exist)
 ```
 
-Note that KeyDial does not treat strings as arrays (like `dig()`). Trying to access a key on a string will return nil or your default.
+You can `call` on any Hash, Array or Struct after requiring this gem.
+
+Note that KeyDial does not treat strings as arrays. Trying to access a key on a string will return nil or your default. (This is also how `dig()` works.)
 
 ### Use key access syntax (allows default return value)
 
@@ -56,10 +58,14 @@ hash.dial[:a][4][:c].call          # Returns the value at hash[:a][4][:c] or nil
 hash.dial[:a][4][:c].call('Ooops') # Returns the value at hash[:a][4][:c] or 'Ooops'
 ```
 
+You can `dial` on any Hash, Array or Struct after requiring this gem.
+
+### Use the KeyDialler object
+
 If you don't do this all in one line, you can access the KeyDialler object should you want to manipulate it:
 
 ```ruby
-dialler = struct.dial # Returns a KeyDialler object referencing struct
+dialler = KeyDial::KeyDialler.new(struct) # Returns a KeyDialler object referencing struct
 dialler[:a] # Adds :a to the list of keys to dial (returns self)
 dialler.dial!(:b, :c) # Longhand way of adding more keys (returns self)
 dialler.undial! # Removes the last-added key (returns self)
