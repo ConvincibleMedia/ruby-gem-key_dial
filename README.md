@@ -76,3 +76,7 @@ dialler -= :a # Removes all such keys from the list (returns self)
 dialler.call # Returns the value at struct[:b][:c][:d][:e] or nil
 dialler.hangup # Returns the original keyed object by reference
 ```
+
+## Note
+
+KeyDial is a generic version of the gem HashDial, replacing and deprecating it.

@@ -3,8 +3,8 @@ RSpec.describe KeyDial do
         expect(KeyDial::VERSION).not_to be nil
     end
 
-    test_original = {a: {b: {c: true}, d: 5}}.freeze
-    test =          {a: {b: {c: true}, d: 5}}
+    test_original = {a: {b: {c: true}, d: 5}, e: [0, 1]}.freeze
+    test = test_original.dup
 
     # Shorthand
 
