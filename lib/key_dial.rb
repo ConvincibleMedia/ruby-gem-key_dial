@@ -23,34 +23,26 @@ module KeyDial
         return KeyDialler.new(self, *lookup).call
     end
 
-    module Static
-        def dial(object = self, *lookup)
-            return KeyDial::KeyDialler.new(nil, *lookup)
-        end
-    end
-
 end
 
 # Extend core classes so that .dial can be called seamlessly
-# Hash.new.dial = instance method on this hash object
-# Hash.dial = static method to create an empty KeyDialler object
 class Hash
     include KeyDial
-    extend KeyDial::Static
 end
 
 class Array
     include KeyDial
-    extend KeyDial::Static
 end
 
 class Struct
     include KeyDial
-    extend KeyDial::Static
 end
 
-# For static invokation when you don't care about which object you're invoking on
+# Ability to create anonymous key lists (on no particular object) with Keys[a][b][c]
 module Keys
-    extend KeyDial::Static
-    def self.new; return KeyDial::DEFAULT_OBJECT; end
+
+    def self.[](first_key)
+        return KeyDial::KeyDialler.new(nil, first_key)
+    end
+
 end

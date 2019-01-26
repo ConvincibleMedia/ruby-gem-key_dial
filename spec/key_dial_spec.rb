@@ -103,24 +103,22 @@ RSpec.describe KeyDial do
 
     # Key.dial
 
-    it "can be created via Keys.dial, Hash.dial, etc." do
-        expect(Keys.dial.class).to eq(KeyDial::KeyDialler)
-        expect(Hash.dial.class).to eq(KeyDial::KeyDialler)
-        expect(Array.dial.class).to eq(KeyDial::KeyDialler)
-        expect(Struct.dial.class).to eq(KeyDial::KeyDialler)
-        expect(Struct.dial.class).to eq(KeyDial::KeyDialler)
+    it "can be created via Keys[], Keys.new" do
+        x = Keys[:a]
+        expect(x.is_a?(KeyDial::KeyDialler)).to eq(true)
     end
 
-    it "Keys.dial[:a][:b].keys = [:a, :b]" do
-        expect(Keys.dial[:a][:b].keys).to eq([:a, :b])
+    it "Keys[:a][:b].keys = [:a, :b]" do
+        expect(Keys[:a].keys).to eq([:a])
+        expect(Keys[:a][:b].keys).to eq([:a, :b])
     end
 
-    it "Keys.dial[:a][:b].object = {}" do
-        expect(Keys.dial[:a][:b].object).to eq({})
+    it "Keys[:a][:b].object = {}" do
+        expect(Keys[:a][:b].object).to eq({})
     end
 
     it "KeyDialler.object = new_obj (keys already dialled)" do
-        x = Keys.dial[:a][:b][:c]
+        x = Keys[:a][:b][:c]
         x.object = test
         expect(x.call).to eq(true)
     end
@@ -128,7 +126,7 @@ RSpec.describe KeyDial do
     # API
 
     it "can't access KeyDialler.use_keys" do
-        x = Keys.dial
+        x = KeyDial::KeyDialler.new
         expect{x.use_keys(:a, :b, :c)}.to raise_error(NoMethodError)
     end
 
