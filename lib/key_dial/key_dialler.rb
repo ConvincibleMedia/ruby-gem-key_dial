@@ -122,14 +122,66 @@ module KeyDial
 					end
 				}
 
+				reconstruct = false
+
 				# Ensure this object is a supported type - always true for index == 0
 				if !deep_obj.class.included_modules.include?(KeyDial)
+					# Not a supported type! e.g. a string
 					if key[:this][:type] == :number
 						puts 'woop'
 						deep_obj = Array.new(key[:this][:max] - 1).unshift(deep_obj)
 					else
 						deep_obj = {0 => deep_obj}
 					end
+					reconstruct = true
+				else
+					# Supported type, but what if this doesn't accept that kind of key? Then...
+
+					# "You asked for it!"(TM)
+					# In a Struct, if accessing a member that doesn't exist, we'll replace the struct with a redefined anonymous one containing the members you wanted. This is dangerous but it's your fault.
+					if deep_obj.is_a?(Struct)
+						if key[:this][:type] == :string || key[:this][:type] == :symbol
+							if !deep_obj.members.include?(key[:this][:value].to_sym)
+								# You asked for it!
+								# Add the member you requested
+								new_members = deep_obj.members.push(key[:this][:value].to_sym)
+								deep_obj = Struct.new(*new_members).new(*deep_obj.values)
+								reconstruct = true
+							end
+						elsif key[:this][:type] == :number
+							if key[:this][:max] > deep_obj.size
+								# You asked for it!
+								# Create new numeric members up to key requested
+								new_members = deep_obj.members.concat(
+									(deep_obj.size..(key[:this][:max] - 1)).to_a.map { |num| num.to_s.to_sym }
+								)
+								deep_obj = Struct.new(*new_members).new(*deep_obj.values)
+								reconstruct = true
+							end
+						end
+					end
+
+					# "You asked for it!"(TM)
+					# If accessing an array with a key that doesn't exist, we'll add elements to the array or change the array to a hash. This is dangerous but it's your fault.
+					if deep_obj.is_a?(Array)
+						if key[:this][:type] == :number
+							if key[:this][:value] <= -1 && key[:this][:max] > deep_obj.size
+								# You asked for it!
+								# The only time an Array will break is if you try to set a negative key larger than the size of the array. In this case we'll prepend your array with nils.
+								deep_obj = Array.new(key[:this][:max] - deep_obj.size, nil).concat(deep_obj)
+								reconstruct = true
+							end
+						else
+							# You asked for it!
+							# Trying to access non-numeric key on an array, so will convert the array into a hash with integer keys.
+							deep_obj = deep_obj.each_with_index.map { |v, index| [index, v] }.to_h
+							reconstruct = true
+						end
+					end
+
+				end
+
+				if reconstruct
 					# Go back and reinject this altered value into the array
 					@lookup[0...(index-1)].inject(@obj_with_keys) { |deep_obj2, this_key2|
 						deep_obj2[this_key2]
@@ -144,10 +196,7 @@ module KeyDial
 					else
 						deep_obj[key[:this][:value]] = {key[:next][:value] => nil}
 					end
-				end#else
-					# Such key was found
-					#if deep_obj[key[:this][:value]].is_a?
-
+				end
 
 				# Quit if this is the penultimate or last iteration
 				next deep_obj if index >= @lookup.size - 1
@@ -158,7 +207,7 @@ module KeyDial
 				# Before here, we must make sure we can access key on deep_obj
 				deep_obj[key[:this][:value]]
 
-			# Final access (and set) of last key in the @lookup
+			# Final access (and set) of last key in the @lookup - by this point should be guaranteed to work!
 			}[@lookup[-1]] = value_obj
 
 
@@ -166,45 +215,7 @@ module KeyDial
 
 				# WHAT TO DO WHEN SETTING A KEY YOU JUST CAN'T SET
 
-				# "You asked for it!"(TM)
-				# If accessing a member that doesn't exist, we'll replace the struct with a redefined anonymous one containing the members you wanted. This is dangerous but it's your fault.
-				if this.is_a?(Struct)
-					if access == :string || access == :symbol
-						if !this.members.include?(key.to_sym)
-							# You asked for it!
-							# Add the member you requested
-							new_members = this.members.push(key.to_sym)
-							this = Struct.new(*new_members).new(*this.values)
-						end
-					elsif access == :number
-						if max > this.size
-							# You asked for it!
-							# Create new numeric members up to key requested
-							new_members = this.members.concat(
-								(this.size..max).to_a.map { |num| num.to_sym }
-							)
-							this = Struct.new(*new_members).new(*this.values)
-						end
-					end
 
-
-				end
-
-				# "You asked for it!"(TM)
-				# If accessing an array with a key that doesn't exist, we'll add elements to the array or change the array to a hash. This is dangerous but it's your fault.
-				if this.is_a?(Array)
-					if access == :number
-						if key <= -1 && max > this.size
-							# You asked for it!
-							# The only time an Array will break is if you try to set a negative key larger than the size of the array. In this case we'll prepend your array with nils.
-							this = Array.new(max - this.size, nil).concat(this)
-						end
-					else
-						# You asked for it!
-						# Trying to access non-numeric key on an array, so will convert the array into a hash with integer keys.
-						this = this.each_with_index.map { |v, index| [index, v] }.to_h
-					end
-				end
 
 			end
 
