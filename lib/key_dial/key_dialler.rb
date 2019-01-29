@@ -48,9 +48,38 @@ module KeyDial
 		#
 		def call(default = @default)
 			begin
-				value = @obj_with_keys.dig(*@lookup)
+
+				value = @lookup.inject(@obj_with_keys) { |deep_obj, this_key|
+					return default unless deep_obj.respond_to?(:dig)
+
+					if deep_obj.is_a?(Hash)
+						value = deep_obj.fetch(this_key, default)
+					elsif deep_obj.is_a?(Array)
+						if this_key.is_a?(Numeric)
+							value = deep_obj.fetch(this_key, default)
+						else
+							return default
+						end
+					elsif deep_obj.is_a?(Struct)
+						if !deep_obj.members.include?(this_key)
+							return default
+						elsif this_key.is_a?(Numeric)
+							if this_key.magnitude.floor + (this_key <= -1 ? 0 : 1) > deep_obj.size
+								return default
+							end
+						end
+						value = deep_obj[this_key]
+					else
+						value = deep_obj.dig(this_key)
+					end
+
+					value
+				}
+
+				#value = @obj_with_keys.dig(*@lookup[0...-1])
+
 			rescue
-				value = default
+				return default
 			end
 			return value
 		end
