@@ -141,9 +141,9 @@ module KeyDial
 				}
 
 				[:this, :next].each { |which|
-					if key[which][:value].is_a?(Integer) || key[which][:value].is_a?(Float)
+					if key[which][:value].is_a?(Numeric)
 						key[which][:type] = :number
-						key[which][:max] = key[which][:value].magnitude.floor + 1
+						key[which][:max] = key[which][:value].magnitude.floor + (key[which][:value] <= -1 ? 0 : 1)
 					else
 						key[which][:type] = :object
 						key[which][:type] = :string if key[which][:value].is_a?(String)
@@ -157,9 +157,10 @@ module KeyDial
 				if !deep_obj.class.included_modules.include?(KeyDial)
 					# Not a supported type! e.g. a string
 					if key[:this][:type] == :number
-						puts 'woop'
+						# If we'll access an array next, re-embed the unsupported object in an array as [0 => original]
 						deep_obj = Array.new(key[:this][:max] - 1).unshift(deep_obj)
 					else
+						# Otherwise, embed the unsupported object in a hash with the key 0
 						deep_obj = {0 => deep_obj}
 					end
 					reconstruct = true
@@ -181,10 +182,23 @@ module KeyDial
 							if key[:this][:max] > deep_obj.size
 								# You asked for it!
 								# Create new numeric members up to key requested
-								new_members = deep_obj.members.concat(
-									(deep_obj.size..(key[:this][:max] - 1)).to_a.map { |num| num.to_s.to_sym }
-								)
-								deep_obj = Struct.new(*new_members).new(*deep_obj.values)
+								if key[:this][:value] <= -1
+									range = 0..((key[:this][:max] - deep_obj.size) - 1)
+								else
+									range = deep_obj.size..(key[:this][:max] - 1)
+								end
+								new_keys = (range).to_a.map { |num| num.to_s.to_sym }
+								# Shove them in
+								if key[:this][:value] <= -1
+									# Prepend
+									new_members = new_keys.concat(deep_obj.members)
+									new_values = Array.new(new_keys.size - deep_obj.values.size, nil).concat(deep_obj.values)
+								else
+									# Append
+									new_members = deep_obj.members.concat(new_keys)
+									new_values = deep_obj.values
+								end
+								deep_obj = Struct.new(*new_members).new(*new_values)
 								reconstruct = true
 							end
 						end
