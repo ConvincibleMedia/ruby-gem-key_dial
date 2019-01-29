@@ -19,7 +19,7 @@ module KeyDial
 
 		# Adds a key to the list of nested keys to try, one level deeper.
 		#
-		# @param keys The key to add. Multiple arguments would add multiple keys.
+		# @param keys_array The key(s) to add. Multiple arguments would add multiple keys.
 		#
 		def dial!(*keys_array)
 			#unless key.is_a(Symbol) || key.is_a(String)
@@ -30,7 +30,7 @@ module KeyDial
 
 		# Remove keys from the dialling list.
 		#
-		# @param keys If specified, these keys would be removed from wherever they appear in the dialling list. Otherwise, the last added key is removed.
+		# @param keys_array If specified, these keys would be removed from wherever they appear in the dialling list. Otherwise, the last added key is removed.
 		#
 		def undial!(*keys_array)
 			keys_array = use_keys(keys_array)
@@ -42,7 +42,7 @@ module KeyDial
 			return self
 		end
 
-		# Digs into the object to the list of keys specified by dialling. Returns nil or default if specified.
+		# Digs into the object to the list of keys specified by dialling. Returns nil, or default if specified, if the key can't be found.
 		#
 		# @param default What to return if no key is found.
 		#
@@ -97,6 +97,9 @@ module KeyDial
 		alias hangup object
 
 		# Set/change the keyed object.
+		#
+		# @param obj_with_keys The object that should be dialled, e.g. a Hash, Array or Struct.
+		#
 		def object=(obj_with_keys)
 			obj_with_keys = DEFAULT_OBJECT if obj_with_keys.nil?
 			if obj_with_keys.respond_to?(:dig)
@@ -108,11 +111,17 @@ module KeyDial
 
 		# The preferred way to build up your dialling list. Access KeyDialler as if it were a keyed object, e.g. keydialler[a][b][c]. This does not actually return any value, rather it dials those keys (awaiting a call).
 		#
+		# @param key The key to dial, determined via [key] syntax
+		#
 		def [](key)
 			return dial!(key)
 		end
 
 		# Set any deep key. If keys along the way don't exist, empty Hashes or Arrays will be created. Warning: this method will try to coerce your main object to match the structure implied by your keys.
+		#
+		# @param key_obj The key to alter, determined via [key_obj] syntax
+		# @param value_obj What to set this key to, determined via [key_obj] = value_obj syntax
+		#
 		def []=(key_obj, value_obj)
 			# Hashes can be accessed at [Object] of any kind
 			# Structs can be accessed at [String] and [Symbol], and [Integer] for the nth member (or [Float] which rounds down)
@@ -253,15 +262,6 @@ module KeyDial
 
 			# Final access (and set) of last key in the @lookup - by this point should be guaranteed to work!
 			}[@lookup[-1]] = value_obj
-
-
-			if false
-
-				# WHAT TO DO WHEN SETTING A KEY YOU JUST CAN'T SET
-
-
-
-			end
 
 		end
 
