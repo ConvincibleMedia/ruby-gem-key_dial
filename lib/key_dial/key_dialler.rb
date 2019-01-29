@@ -76,6 +76,7 @@ module KeyDial
 					value
 				}
 
+				#Naive approach - will sometimes not correctly return default
 				#value = @obj_with_keys.dig(*@lookup[0...-1])
 
 			rescue
