@@ -1,6 +1,12 @@
 module KeyDial
 
+	class NonKey
+		def ==(other); return other.class == self.class; end
+	end
+
 	class KeyDialler
+
+		NO_SUCH_KEY = NonKey.new
 
 		@obj_with_keys
 		@lookup
