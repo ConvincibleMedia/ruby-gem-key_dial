@@ -255,4 +255,85 @@ RSpec.describe KeyDial do
         expect(test[:e][3][:x][:z]).to eq({})
     end
 
+    it "can insist on a new Hash where no value exists" do
+        test = test_original.deep_dup
+        #$debug = true
+        expect(test.dial[:e][3][:x][:z].insist(Hash)).to eq({})
+        expect(test[:e][3][:x][:z]).to eq({})
+    end
+
+    it "can insist on a new Array where no value exists" do
+        test = test_original.deep_dup
+        #$debug = true
+        expect(test.dial[:e][3][:x][:z].insist(Array)).to eq([])
+        expect(test[:e][3][:x][:z]).to eq([])
+    end
+
+    it "can insist on a new Array where no value exists, with starting value" do
+        test = test_original.deep_dup
+        #$debug = true
+        expect(test.dial[:e][3][:x][:z].insist(Array, 2)).to eq([nil, nil])
+        expect(test[:e][3][:x][:z]).to eq([nil, nil])
+        expect(test[:e][3][:x][:z][0]).to eq(nil)
+    end
+
+    it "can insist on a new bare Struct where no value exists" do
+        test = test_original.deep_dup
+        #$debug = true
+        x = Struct.new(:'0').new
+        expect{test.dial[:e][3][:x][:z].insist(Struct)[0] = 2}.not_to raise_error()
+        expect(test[:e][3][:x][:z][0]).to eq(2)
+    end
+
+    Struct.new('Test', :'0')
+
+    it "can insist on a new Struct::Test where no value exists" do
+        test = test_original.deep_dup
+        #$debug = true
+        x = Struct::Test.new
+        expect(test.dial[:e][3][:x][:z].insist(Struct::Test)).to eq(x)
+        expect(test[:e][3][:x][:z]).to eq(x)
+    end
+
+    it "can insist on a new Struct::Test where no value exists, with starting value" do
+        test = test_original.deep_dup
+        #$debug = true
+        x = Struct::Test.new(1)
+        expect(test.dial[:e][3][:x][:z].insist(Struct::Test, 1)).to eq(x)
+        expect(test[:e][3][:x][:z]).to eq(x)
+        expect(test[:e][3][:x][:z][0]).to eq(1)
+    end
+
+    # {a: {b: {c: true}, d: 5}, e: [0, 1], f: Struct.new(:g).new('hello')}.deep_freeze
+
+    it "can insist on a Hash when there's a non-keyed object" do
+        test = test_original.deep_dup
+        expect(test.dial[:a][:b][:c].insist(Hash)).to eq({0 => true})
+    end
+
+    it "can insist on an Array when there's a non-keyed object" do
+        test = test_original.deep_dup
+        expect(test.dial[:a][:b][:c].insist(Array)).to eq([true])
+    end
+
+    it "can insist on a Struct when there's a non-keyed object" do
+        test = test_original.deep_dup
+        expect(test.dial[:a][:b][:c].insist(Struct::Test)).to eq(Struct::Test.new(true))
+    end
+
+    it "can insist on a Hash when there's an array" do
+        test = test_original.deep_dup
+        expect(test.dial[:e].insist(Hash)).to eq({0 => 0, 1 => 1})
+    end
+
+    it "can insist on an Array when there's a Struct" do
+        test = test_original.deep_dup
+        expect(test.dial[:f].insist(Array)).to eq(['hello'])
+    end
+
+    it "can insist on a Struct when there's a Hash" do
+        test = test_original.deep_dup
+        expect(test.dial[:a][:b].insist(Struct::Test)).to eq(Struct::Test.new)
+    end
+
 end
