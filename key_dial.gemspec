@@ -28,5 +28,6 @@ Gem::Specification.new do |spec|
     spec.add_development_dependency "rspec", "~> 3.0"
     spec.add_development_dependency "ice_nine", "~> 0.11.2"
     spec.add_development_dependency "activesupport", "~> 5.2.2"
-    spec.add_development_dependency "pry", "~> 0.12.2"
+    spec.add_development_dependency "pry"
+    spec.add_development_dependency "pry-nav"
 end
