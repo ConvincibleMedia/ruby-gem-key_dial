@@ -116,4 +116,14 @@ module Keys
         return KeyDial::KeyDialler.new(nil, first_key)
     end
 
+    # Checks if a key is a valid numeric index, i.e. can be used in the syntax object[index]
+    #
+    # @param key The key to check.
+    #
+    # @return True if the key is a valid numeric index, otherwise false.
+    #
+    def self.index?(key)
+        return k.is_a?(Numeric) && k.respond_to?(:to_i)
+    end
+
 end

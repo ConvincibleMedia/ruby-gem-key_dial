@@ -61,7 +61,7 @@ module KeyDial
 						# We've monkeypatched fetch to Struct
 						if deep_obj.is_a?(Array)
 							# Check array separately as must fetch numeric key
-							return default unless this_key.is_a?(Numeric) && this_key.respond_to?(:to_i)
+							return default unless Keys.index?(this_key)
 						end
 						next_obj = deep_obj.fetch(this_key, Keys::NULL)
 					else
@@ -219,7 +219,7 @@ module KeyDial
 				}
 
 				[:this, :next].each { |which|
-					if key[which][:value].is_a?(Numeric) && key[which][:value].respond_to?(:to_i)
+					if Keys.index?(key[which][:value])
 						key[which][:type] = :number
 						key[which][:max] = key[which][:value].magnitude.floor + (key[which][:value] <= -1 ? 0 : 1)
 					else
