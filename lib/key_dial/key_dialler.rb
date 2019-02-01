@@ -6,8 +6,6 @@ module KeyDial
 
 	class KeyDialler
 
-		NO_SUCH_KEY = NonKey.new
-
 		@obj_with_keys
 		@lookup
 		@default
@@ -28,7 +26,6 @@ module KeyDial
 		# @param keys_array The key(s) to add. Multiple arguments would add multiple keys.
 		#
 		def dial!(*keys_array)
-			#unless key.is_a(Symbol) || key.is_a(String)
 			keys_array = use_keys(keys_array)
 			@lookup += keys_array
 			return self
@@ -56,38 +53,33 @@ module KeyDial
 			begin
 
 				value = @lookup.inject(@obj_with_keys) { |deep_obj, this_key|
-					return default unless deep_obj.respond_to?(:dig)
+					# Has to be an object that can have keys
+					return default unless deep_obj.respond_to?(:[])
 
-					if deep_obj.is_a?(Hash)
-						value = deep_obj.fetch(this_key, default)
-					elsif deep_obj.is_a?(Array)
-						if this_key.is_a?(Numeric)
-							value = deep_obj.fetch(this_key, default)
-						else
-							return default
+					if deep_obj.respond_to?(:fetch)
+						# Hash, Array and Struct all respond to fetch
+						# We've monkeypatched fetch to Struct
+						if deep_obj.is_a?(Array)
+							# Check array separately as must fetch numeric key
+							return default unless this_key.is_a?(Numeric) && this_key.respond_to?(:to_i)
 						end
-					elsif deep_obj.is_a?(Struct)
-						if !deep_obj.members.include?(this_key)
-							return default
-						elsif this_key.is_a?(Numeric)
-							if this_key.magnitude.floor + (this_key <= -1 ? 0 : 1) > deep_obj.size
-								return default
-							end
-						end
-						value = deep_obj[this_key]
+						next_obj = deep_obj.fetch(this_key, Keys::NULL)
 					else
-						value = deep_obj.dig(this_key)
+						return default
 					end
 
-					value
+					# No need to go any further
+					return default if Keys::NULL == next_obj
+
+					# Reinject value to next loop
+					next_obj
 				}
 
-				#Naive approach - will sometimes not correctly return default
-				#value = @obj_with_keys.dig(*@lookup[0...-1])
-
 			rescue
+				# If fetch throws a wobbly at any point, fail gracefully
 				return default
 			end
+			# No errors - return the value
 			return value
 		end
 
