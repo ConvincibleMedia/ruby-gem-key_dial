@@ -135,6 +135,23 @@ module KeyDial
 			return set!(value_obj)
 		end
 
+		# The preferred way to add to an array at the end of a set of keys. Will create or coerce the array if required.
+		#
+		# @param value_obj The value to add to the array at the dialled location.
+		#
+		def <<(value_obj)
+			array = call(NO_SUCH_KEY)
+			# Dial the next array key index - @lookup can never be empty before set!()
+			if array.is_a?(Array) || array.is_a?(Hash) || array.is_a?(Struct)
+				dial!(array.size)
+			elsif array == NO_SUCH_KEY
+				dial!(0)
+			else
+				dial!(1)
+			end
+			return set!(value_obj)
+		end
+
 		# Set any deep key. If keys along the way don't exist, empty Hashes or Arrays will be created. Warning: this method will try to coerce your main object to match the structure implied by your keys.
 		#
 		# @param key_obj The key to alter, determined via [key_obj] syntax
