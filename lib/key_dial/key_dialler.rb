@@ -128,16 +128,15 @@ module KeyDial
 		# @param key_obj The key to alter, determined via [key_obj] syntax
 		# @param value_obj What to set this key to, determined via [key_obj] = value_obj syntax
 		#
-		def []=(key_obj, value_obj)
+		def set!(value_obj = (value_obj_skipped = true; nil))
+
+			return nil if @lookup.empty?
 			# Hashes can be accessed at [Object] of any kind
 			# Structs can be accessed at [String] and [Symbol], and [Integer] for the nth member (or [Float] which rounds down)
 			# Arrays can be accessed at [Integer] or [Float] which rounds down
 
-			# Dial the key to be set - @lookup can never be empty
-			dial!(key_obj)
-
 			index = 0
-			@lookup.inject(@obj_with_keys) { |deep_obj, this_key|
+			obj_to_set = @lookup.inject(@obj_with_keys) { |deep_obj, this_key|
 
 				# this = object to be accessed
 				# key = key to access on this
@@ -248,12 +247,19 @@ module KeyDial
 				end
 
 				# Does this object already have this key?
-				if !deep_obj.call(key[:this][:value])
+				if deep_obj.dial[key[:this][:value]].call(NO_SUCH_KEY) == NO_SUCH_KEY
 					# If not, create empty array/hash dependant on upcoming key
 					if key[:next][:type] == :number
-						deep_obj[key[:this][:value]] = Array.new(key[:next][:max])
+						if key[:next][:value] <= -1
+							# Ensure new array big enough to address a negative key
+							deep_obj[key[:this][:value]] = Array.new(key[:next][:max])
+						else
+							# Otherwise, can just create an empty array
+							deep_obj[key[:this][:value]] = []
+						end
 					else
-						deep_obj[key[:this][:value]] = {key[:next][:value] => nil}
+						# Create an empty hash awaiting keys/values
+						deep_obj[key[:this][:value]] = {}
 					end
 				end
 
@@ -264,10 +270,17 @@ module KeyDial
 				index += 1
 
 				# Before here, we must make sure we can access key on deep_obj
+				# Return the value at this key for the next part of inject loop
 				deep_obj[key[:this][:value]]
 
+			}
+
 			# Final access (and set) of last key in the @lookup - by this point should be guaranteed to work!
-			}[@lookup[-1]] = value_obj
+			if value_obj_skipped
+				return obj_to_set[@lookup[-1]]
+			else
+				return obj_to_set[@lookup[-1]] = value_obj
+			end
 
 		end
 
