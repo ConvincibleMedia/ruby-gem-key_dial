@@ -347,12 +347,21 @@ module KeyDial
 
 		end
 
-		# You can add and subtract keys from a KeyDialler object
+		# Add a key to the dialling chain. If an array is passed, each item in the array will be added in order.
 		def +(key)
-			return dial!(key)
+			return dial!(*key)
 		end
+
+		# Remove keys that have been dialled.
+		#
+		# @param key If an integer n, the last n keys will be removed. Otherwise, all keys matching this argument will be removed from any point in the dialing chain. If an array is passed, each item in the array will be removed.
+		#
 		def -(key)
-			return undial!(key)
+			if key.is_a?(Integer) && key > 0
+				return key.times { undial! }
+			else
+				return undial!(*key)
+			end
 		end
 
 		# Private class method to reduce KeyDialler objects to their contained key arrays if a KeyDialler object itself is passed as a potential key to dial
