@@ -209,7 +209,7 @@ module KeyDial
 				}
 
 				[:this, :next].each { |which|
-					if key[which][:value].is_a?(Numeric)
+					if key[which][:value].is_a?(Numeric) && key[which][:value].respond_to?(:to_i)
 						key[which][:type] = :number
 						key[which][:max] = key[which][:value].magnitude.floor + (key[which][:value] <= -1 ? 0 : 1)
 					else
