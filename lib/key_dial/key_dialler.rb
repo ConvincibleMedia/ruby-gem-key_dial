@@ -88,6 +88,16 @@ module KeyDial
 			return @lookup
 		end
 
+		# Set the key list directly.
+		def keys=(keys_array)
+			if keys_array.is_a?(Array)
+				@lookup = []
+				dial!(*keys_array)
+			else
+				raise ArgumentError, 'Key list must be set to an array.'
+			end
+		end
+
 		# Return the original keyed object.
 		def object
 			return @obj_with_keys
