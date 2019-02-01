@@ -146,6 +146,11 @@ RSpec.describe KeyDial do
         expect(test[:a][:b][:f]).to eq('test')
     end
 
+    it "can add a value at a dialled super-deep hash key that does not exist" do
+        test.dial[:a][:b][:f][:g][:h][3][:k] = 'test'
+        expect(test[:a][:b][:f][:g][:h][3][:k]).to eq('test')
+    end
+
     it "can set a value on a dialled deep array key that exists" do
         test.dial[:e][0] = 'test'
         expect(test[:e][0]).to eq('test')
@@ -180,18 +185,74 @@ RSpec.describe KeyDial do
         expect(test[:f][1]).to eq('test2')
     end
 
-    test = test_original.deep_dup
-
     it "can change a deep key from array to hash if required" do
-        test.dial[:e]['string'] = 'test'
-        expect(test.dial[:f]['string'].call('test')).to eq('test')
+        test = test_original.deep_dup
+        expect(test.dial[:e].call.is_a?(Array)).to eq(true)
+        test.dial[:e]['string'] = 'test3'
+        expect(test.dial[:e].call.is_a?(Hash)).to eq(true)
+        expect(test.dial[:e]['string'].call('error')).to eq('test3')
     end
 
     it "can create missing hashes or arrays along the way" do
+        test = test_original.deep_dup
         test.dial[:a][3] = 'test'
         expect(test[:a][3]).to eq('test')
         test.dial[:a][2][:z] = 'test'
         expect(test[:a][2][:z]).to eq('test')
+    end
+
+    test = test_original.deep_dup
+
+    # Add to array  {a: {b: {c: true}, d: 5}, e: [0, 1], f: Struct.new(:g).new('hello')}.deep_freeze
+
+    it "can add to an array with <<" do
+        test = test_original.deep_dup
+        expect(test.dial[:e].call.is_a?(Array)).to eq(true)
+        test.dial[:e] << 'foo'
+        expect(test.dial[:e][2].call('error')).to eq('foo')
+    end
+
+    it "can create an array with <<" do
+        test = test_original.deep_dup
+        test.dial[:a][:g] << 'test5'
+        expect(test.dial[:a][:g][0].call('error')).to eq('test5')
+    end
+
+    it "can coerce an array with <<" do
+        test = test_original.deep_dup
+        test.dial[:a][:d] << 'test6'
+        expect(test.dial[:a][:d][0].call('error')).to eq(5)
+        expect(test.dial[:a][:d][1].call('error')).to eq('test6')
+    end
+
+    it "can make a hash act like an array with <<" do
+        test = test_original.deep_dup
+        test.dial[:a][:b] << 'test7'
+        expect(test.dial[:a][:b][:c].call('error')).to eq(true)
+        expect(test.dial[:a][:b][1].call('error')).to eq('test7')
+    end
+
+    # Insist  {a: {b: {c: true}, d: 5}, e: [0, 1], f: Struct.new(:g).new('hello')}.deep_freeze
+
+    it "can insist on there being some value at the dial and return it when there is" do
+        test = test_original.deep_dup
+        expect(test.dial[:a][:b][:c].insist).to eq(true)
+    end
+
+    it "can insist on a value and directly alter it" do
+        test = test_original.deep_dup
+        test.dial[:a][:b].insist[:c] = false
+        expect(test[:a][:b][:c]).to eq(false)
+        test.dial[:a][:b].insist.merge!({c: true, h: true})
+        expect(test[:a][:b][:c]).to eq(true)
+        expect(test[:a][:b][:h]).to eq(true)
+    end
+
+    it "can insist and return, when no value exists there" do
+        test = test_original.deep_dup
+        #$debug = true
+        expect(test.dial[:e][3][:x][:z].insist).to eq({})
+        expect(test[:e][3][:x][:z]).to eq({})
     end
 
 end
