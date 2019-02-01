@@ -156,7 +156,7 @@ module KeyDial
 						if type_class != Struct # why would you do this...
 							set!(type_class.new)
 						else
-							set!(Struct.new(0).new)
+							set!(Struct.new(:'0').new)
 						end
 					else
 						if type_class != Struct
