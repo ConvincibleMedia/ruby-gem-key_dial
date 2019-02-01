@@ -123,6 +123,18 @@ module KeyDial
 			return dial!(key)
 		end
 
+		# The preferred way to set a value at the end of a set of keys. Will create or coerce intermediate keys if required.
+		#
+		# @param key_obj The last key to dial, determined via [key] syntax
+		# @param value_obj What to set it to.
+		#
+		def []=(key_obj, value_obj)
+			# Dial the key to be set - @lookup can never be empty
+			dial!(key_obj)
+			# Set the value
+			return set!(value_obj)
+		end
+
 		# Set any deep key. If keys along the way don't exist, empty Hashes or Arrays will be created. Warning: this method will try to coerce your main object to match the structure implied by your keys.
 		#
 		# @param key_obj The key to alter, determined via [key_obj] syntax
