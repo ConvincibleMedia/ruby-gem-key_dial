@@ -132,11 +132,11 @@ module KeyDial
 		# @param value_obj The value to add to the array at the dialled location.
 		#
 		def <<(value_obj)
-			array = call(NO_SUCH_KEY)
+			array = call(Keys::NULL)
 			# Dial the next array key index - @lookup can never be empty before set!()
 			if array.is_a?(Array) || array.is_a?(Hash) || array.is_a?(Struct)
 				dial!(array.size)
-			elsif array == NO_SUCH_KEY
+			elsif array == Keys::NULL
 				dial!(0)
 			else
 				dial!(1)
@@ -147,8 +147,8 @@ module KeyDial
 		def insist(type_class = nil, initial = (initial_skipped = true; nil))
 			if type_class.is_a?(Class)
 				# Class insistence
-				value = call(NO_SUCH_KEY)
-				if value == NO_SUCH_KEY || !value.is_a?(type_class)
+				value = call(Keys::NULL)
+				if value == Keys::NULL || !value.is_a?(type_class)
 					# Value doesn't exist, or exists in wrong class
 
 					# "You asked for it!"(TM)
@@ -300,7 +300,7 @@ module KeyDial
 				end
 
 				# Does this object already have this key?
-				if deep_obj.dial[key[:this][:value]].call(NO_SUCH_KEY) == NO_SUCH_KEY
+				if deep_obj.dial[key[:this][:value]].call(Keys::NULL) == Keys::NULL
 					# If not, create empty array/hash dependant on upcoming key
 					if key[:next][:type] == :number
 						if key[:next][:value] <= -1
