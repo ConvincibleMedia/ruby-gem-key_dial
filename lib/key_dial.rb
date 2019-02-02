@@ -122,7 +122,7 @@ module Keys
     # @return True if the key is a valid numeric index, otherwise false.
     #
     def self.index?(key)
-        return k.is_a?(Numeric) && k.respond_to?(:to_i)
+        return key.is_a?(Numeric) && key.respond_to?(:to_i)
     end
 
 end

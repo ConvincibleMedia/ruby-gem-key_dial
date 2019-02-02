@@ -108,10 +108,10 @@ module KeyDial
 		#
 		def object=(obj_with_keys)
 			obj_with_keys = DEFAULT_OBJECT if obj_with_keys.nil?
-			if obj_with_keys.respond_to?(:dig)
+			if obj_with_keys.respond_to?(:fetch)
 				@obj_with_keys = obj_with_keys
 			else
-				raise ArgumentError.new('HashDialler must be used on a Hash, Array or Struct, or object that responds to the .dig method.')
+				raise ArgumentError, 'KeyDialler must be used on a Hash, Array or Struct, or object that responds to the fetch method.'
 			end
 		end
 
@@ -191,7 +191,7 @@ module KeyDial
 		#
 		def set!(value_obj = (value_obj_skipped = true; nil))
 
-			return nil if @lookup.empty?
+			return @obj_with_keys if @lookup.empty?
 			# Hashes can be accessed at [Object] of any kind
 			# Structs can be accessed at [String] and [Symbol], and [Integer] for the nth member (or [Float] which rounds down)
 			# Arrays can be accessed at [Integer] or [Float] which rounds down
@@ -231,8 +231,8 @@ module KeyDial
 
 				reconstruct = false
 
-				# Ensure this object is a supported type - always true for index == 0
-				if !deep_obj.class.included_modules.include?(KeyDial)
+				# Ensure this object is a supported type - always true for index == 0 i.e. @obj_with_keys itself
+				if !(deep_obj.respond_to?(:fetch) && deep_obj.respond_to?(:[]))
 					# Not a supported type! e.g. a string
 					if key[:this][:type] == :index
 						# If we'll access an array here, re-embed the unsupported object in an array as [0 => original]
@@ -241,6 +241,7 @@ module KeyDial
 						# Otherwise, embed the unsupported object in a hash with the key 0
 						deep_obj = {0 => deep_obj}
 					end
+					# Will never run on @obj_with_keys itself
 					reconstruct = true
 				else
 					# Supported type, but what if this doesn't accept that kind of key? Then...

@@ -32,10 +32,15 @@ module KeyDial
 			def to_hash
 				self.each_with_index.map { |k, i|
 					if k.is_a?(Array)
-						[i, nil] if k.size == 0
-						[i, k] if k.size == 1
-						k if k.size == 2
-						[k[0], k[1..-1]] if k.size > 2
+						if k.empty?
+							[i, nil]
+						elsif k.size == 1
+							[i, k]
+						elsif k.size == 2
+							k
+						else
+							[k[0], k[1..-1]]
+						end
 					else
 						[i, k]
 					end
