@@ -4,7 +4,7 @@ require 'ice_nine'
 require 'ice_nine/core_ext/object'
 require "active_support/core_ext/object/deep_dup"
 require 'pry'; require 'pry-nav'
-def peep(var); Pry::ColorPrinter.pp(var); end
+def peep(var); puts "Peep"; Pry::ColorPrinter.pp(var); return var; end
 $debug = false;
 
 RSpec.configure do |config|
