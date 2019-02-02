@@ -2,6 +2,8 @@ module KeyDial
 
 	class KeyDialler
 
+		DEFAULT_OBJECT = {}.freeze
+
 		@obj_with_keys
 		@lookup
 		@default
@@ -59,13 +61,13 @@ module KeyDial
 							# Check array separately as must fetch numeric key
 							return default unless Keys.index?(this_key)
 						end
-						next_obj = deep_obj.fetch(this_key, Keys::NULL)
+						next_obj = deep_obj.fetch(this_key, Keys::MISSING)
 					else
 						return default
 					end
 
 					# No need to go any further
-					return default if Keys::NULL == next_obj
+					return default if Keys::MISSING == next_obj
 
 					# Reinject value to next loop
 					next_obj
@@ -138,11 +140,11 @@ module KeyDial
 		# @param value_obj The value to add to the array at the dialled location.
 		#
 		def <<(value_obj)
-			array = call(Keys::NULL)
+			array = call(Keys::MISSING)
 			# Dial the next array key index - @lookup can never be empty before set!()
 			if array.is_a?(Array) || array.is_a?(Hash) || array.is_a?(Struct)
 				dial!(array.size)
-			elsif array == Keys::NULL
+			elsif array == Keys::MISSING
 				dial!(0)
 			else
 				dial!(1)
@@ -153,8 +155,8 @@ module KeyDial
 		def insist(type_class = nil, initial = (initial_skipped = true; nil))
 			if type_class.is_a?(Class)
 				# Class insistence
-				value = call(Keys::NULL)
-				if value == Keys::NULL || !value.is_a?(type_class)
+				value = call(Keys::MISSING)
+				if value == Keys::MISSING || !value.is_a?(type_class)
 					# Value doesn't exist, or exists in wrong class
 
 					# "You asked for it!"(TM)
@@ -201,8 +203,6 @@ module KeyDial
 				# key = key to access on this
 				# access = what kind of key is key
 
-				next_key = @lookup[index + 1]
-				last_key = @lookup[index - 1] if index > 0
 				key = {
 					this: {
 						type: nil,
@@ -210,18 +210,22 @@ module KeyDial
 					},
 					next: {
 						type: nil,
-						value: next_key
+						value: last_index ? Keys::MISSING : @lookup[index + 1]
+					},
+					last: {
+						type: nil,
+						value: index == 0 ? Keys::MISSING : @lookup[index - 1]
 					}
 				}
 
-				[:this, :next].each { |which|
-					if Keys.index?(key[which][:value])
-						key[which][:type] = :number
-						key[which][:max] = key[which][:value].magnitude.floor + (key[which][:value] <= -1 ? 0 : 1)
+				key.each { |pos, _|
+					if Keys.index?(key[pos][:value])
+						key[pos][:type] = :index
+						key[pos][:max] = key[pos][:value].magnitude.floor + (key[pos][:value] <= -1 ? 0 : 1)
 					else
-						key[which][:type] = :object
-						key[which][:type] = :string if key[which][:value].is_a?(String)
-						key[which][:type] = :symbol if key[which][:value].is_a?(Symbol)
+						key[pos][:type] = :object
+						key[pos][:type] = :string if key[pos][:value].is_a?(String)
+						key[pos][:type] = :symbol if key[pos][:value].is_a?(Symbol)
 					end
 				}
 
@@ -230,8 +234,8 @@ module KeyDial
 				# Ensure this object is a supported type - always true for index == 0
 				if !deep_obj.class.included_modules.include?(KeyDial)
 					# Not a supported type! e.g. a string
-					if key[:this][:type] == :number
-						# If we'll access an array next, re-embed the unsupported object in an array as [0 => original]
+					if key[:this][:type] == :index
+						# If we'll access an array here, re-embed the unsupported object in an array as [0 => original]
 						deep_obj = Array.new(key[:this][:max] - 1).unshift(deep_obj)
 					else
 						# Otherwise, embed the unsupported object in a hash with the key 0
@@ -252,7 +256,7 @@ module KeyDial
 								deep_obj = Struct.new(*new_members).new(*deep_obj.values)
 								reconstruct = true
 							end
-						elsif key[:this][:type] == :number
+						elsif key[:this][:type] == :index
 							if key[:this][:max] > deep_obj.size
 								# You asked for it!
 								# Create new numeric members up to key requested
@@ -281,7 +285,7 @@ module KeyDial
 					# "You asked for it!"(TM)
 					# If accessing an array with a key that doesn't exist, we'll add elements to the array or change the array to a hash. This is dangerous but it's your fault.
 					if deep_obj.is_a?(Array)
-						if key[:this][:type] == :number
+						if key[:this][:type] == :index
 							if key[:this][:value] <= -1 && key[:this][:max] > deep_obj.size
 								# You asked for it!
 								# The only time an Array will break is if you try to set a negative key larger than the size of the array. In this case we'll prepend your array with nils.
@@ -302,16 +306,16 @@ module KeyDial
 					# Go back and reinject this altered value into the array
 					@lookup[0...(index-1)].inject(@obj_with_keys) { |deep_obj2, this_key2|
 						deep_obj2[this_key2]
-					}[last_key] = deep_obj
+					}[key[:last][:value]] = deep_obj
 				end
 
 				# Does this object already have this key?
-				if deep_obj.dial[key[:this][:value]].call(Keys::NULL) == Keys::NULL
+				if deep_obj.dial[key[:this][:value]].call(Keys::MISSING) == Keys::MISSING
 					# If not, create empty array/hash dependant on upcoming key
-					if key[:next][:type] == :number
 						if key[:next][:value] <= -1
 							# Ensure new array big enough to address a negative key
 							deep_obj[key[:this][:value]] = Array.new(key[:next][:max])
+						if key[:next][:type] == :index
 						else
 							# Otherwise, can just create an empty array
 							deep_obj[key[:this][:value]] = []

@@ -4,8 +4,6 @@ require "key_dial/coercion"
 
 module KeyDial
 
-    DEFAULT_OBJECT = {}.freeze
-
     # Called on a Hash, Array or Struct, returns a KeyDialler object.
     #
     # @param lookup Parameters to this method form initial keys to dial. This is unnecessary but works anyway. For simplicity, dial keys by accessing them as if KeyDialler were a keyed object itself.
@@ -109,8 +107,9 @@ end
 # Ability to create anonymous key lists (on no particular object) with Keys[a][b][c]
 module Keys
 
-    class NullKey; end
-    NULL = NullKey.new.freeze
+    class Missing; end
+    MISSING = Missing.new.freeze
+    MISSING.freeze
 
     def self.[](first_key)
         return KeyDial::KeyDialler.new(nil, first_key)
