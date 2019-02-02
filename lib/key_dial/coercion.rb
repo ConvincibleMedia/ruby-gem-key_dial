@@ -9,10 +9,6 @@ module KeyDial
 				return Coercion::Structs.create(self, type_class)
 			end
 
-			def key!(key)
-
-			end
-
 			def self.included(base)
 			   	base.extend ClassMethods
 			end
@@ -51,10 +47,6 @@ module KeyDial
 				return Coercion::Structs.create(self, type_class)
 			end
 
-			def key!(key)
-
-			end
-
 			def self.included(base)
 			   	base.extend ClassMethods
 			end
@@ -75,10 +67,6 @@ module KeyDial
 		module Structs
 
 			EMPTY = Struct.new(:'0').new.freeze
-
-			def key!(key)
-
-			end
 
 			def self.included(base)
 			   	base.extend ClassMethods
