@@ -152,38 +152,6 @@ module KeyDial
 			return set!(value_obj)
 		end
 
-		def insist_old(type_class = nil, initial = (initial_skipped = true; nil))
-			if type_class.is_a?(Class)
-				# Class insistence
-				value = call(Keys::MISSING)
-				if value == Keys::MISSING || !value.is_a?(type_class)
-					# Value doesn't exist, or exists in wrong class
-
-					# "You asked for it!"(TM)
-					if initial_skipped == true
-						if type_class != Struct # why would you do this...
-							set!(type_class.new)
-						else
-							set!(Struct.new(:'0').new)
-						end
-					else
-						if type_class != Struct
-							set!(type_class.new(initial))
-						else
-							set!(Struct.new(*initial).new)
-						end
-					end
-
-				else
-					# Value exists in right class
-					return value
-				end
-			else
-				# No class insistence - just create anything if needed and return the value
-				return set!
-			end
-		end
-
 		# Set any deep key. If keys along the way don't exist, empty Hashes or Arrays will be created. Warning: this method will try to coerce your main object to match the structure implied by your keys.
 		#
 		# @param key_obj The key to alter, determined via [key_obj] syntax
