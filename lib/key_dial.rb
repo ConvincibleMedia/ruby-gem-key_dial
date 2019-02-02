@@ -102,6 +102,9 @@ class Struct
 
     alias :keys :members
 
+    # Structs are not empty by definition
+    def empty?; false; end
+
 end
 
 # Ability to create anonymous key lists (on no particular object) with Keys[a][b][c]

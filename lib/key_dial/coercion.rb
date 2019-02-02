@@ -94,7 +94,7 @@ module KeyDial
 			def self.create(from_obj, type_class = nil)
 				#binding.pry
 				if from_obj.is_a?(Hash) || from_obj.is_a?(Array) || from_obj.is_a?(Struct)
-				 	return EMPTY.dup if from_obj.size == 0
+				 	return EMPTY.dup if from_obj.empty?
 					from = from_obj
 				else
 					from = [from_obj]
