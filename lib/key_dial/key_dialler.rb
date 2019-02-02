@@ -1,9 +1,5 @@
 module KeyDial
 
-	class NonKey
-		def ==(other); return other.class == self.class; end
-	end
-
 	class KeyDialler
 
 		@obj_with_keys
