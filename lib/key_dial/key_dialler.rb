@@ -47,27 +47,27 @@ module KeyDial
 		#
 		# @param default What to return if no key is found.
 		#
-		def call(default = @default)
+		def set?
 			begin
 
 				value = @lookup.inject(@obj_with_keys) { |deep_obj, this_key|
 					# Has to be an object that can have keys
-					return default unless deep_obj.respond_to?(:[])
+					return false unless deep_obj.respond_to?(:[])
 
 					if deep_obj.respond_to?(:fetch)
 						# Hash, Array and Struct all respond to fetch
 						# We've monkeypatched fetch to Struct
 						if deep_obj.is_a?(Array)
 							# Check array separately as must fetch numeric key
-							return default unless Keys.index?(this_key)
+							return false unless Keys.index?(this_key)
 						end
 						next_obj = deep_obj.fetch(this_key, Keys::MISSING)
 					else
-						return default
+						return false
 					end
 
 					# No need to go any further
-					return default if Keys::MISSING == next_obj
+					return false if Keys::MISSING == next_obj
 
 					# Reinject value to next loop
 					next_obj
@@ -75,10 +75,45 @@ module KeyDial
 
 			rescue
 				# If fetch throws a wobbly at any point, fail gracefully
-				return default
+				return false
 			end
-			# No errors - return the value
-			return value
+			# No errors - yield the value if desired
+			if block_given?
+				yield(value)
+			end
+			# Return true
+			return true
+		end
+
+		def fetch(default = (default_skipped = true; @default))
+			value = nil
+			if set? { |exists| value = exists }
+				return value
+			else
+				if block_given?
+					warn 'warning: block supersedes default value argument' if !default_skipped
+					return yield
+				else
+					return default
+				end
+			end
+		end
+
+		def call(default = (default_skipped = true; @default))
+			value = nil
+			if set? { |exists| value = exists }
+				if block_given?
+					return yield(value)
+				else
+					return value
+				end
+			else
+				if default.is_a?(Proc)
+					return default.call
+				else
+					return default
+				end
+			end
 		end
 
 		# Return the array of keys dialled so far.
@@ -290,7 +325,7 @@ module KeyDial
 				end
 
 				# Does this object already have this key?
-				if deep_obj.dial[key[:this][:value]].call(Keys::MISSING) == Keys::MISSING
+				if !deep_obj.dial[key[:this][:value]].set?
 					# If not, create empty array/hash dependant on upcoming key
 					if type_class_skipped
 						if key[:next][:type] == :index
