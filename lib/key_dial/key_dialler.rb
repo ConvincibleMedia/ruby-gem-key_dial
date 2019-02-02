@@ -152,7 +152,7 @@ module KeyDial
 			return set!(value_obj)
 		end
 
-		def insist(type_class = nil, initial = (initial_skipped = true; nil))
+		def insist_old(type_class = nil, initial = (initial_skipped = true; nil))
 			if type_class.is_a?(Class)
 				# Class insistence
 				value = call(Keys::MISSING)
@@ -189,7 +189,14 @@ module KeyDial
 		# @param key_obj The key to alter, determined via [key_obj] syntax
 		# @param value_obj What to set this key to, determined via [key_obj] = value_obj syntax
 		#
-		def set!(value_obj = (value_obj_skipped = true; nil))
+		def set!(value_obj)
+			insist!()
+			@lookup[0...-1].inject(@obj_with_keys) { |deep_obj, this_key|
+				deep_obj[this_key]
+			}[@lookup[-1]] = value_obj
+		end
+
+		def insist!(type_class = (type_class_skipped = true; nil))
 
 			return @obj_with_keys if @lookup.empty?
 			# Hashes can be accessed at [Object] of any kind
@@ -197,7 +204,11 @@ module KeyDial
 			# Arrays can be accessed at [Integer] or [Float] which rounds down
 
 			index = 0
-			obj_to_set = @lookup.inject(@obj_with_keys) { |deep_obj, this_key|
+			# Will run at least twice, as:
+			# Always runs once for @obj_with_keys itself
+			# Then at least one more time because @lookup is not empty
+			return @lookup.inject(@obj_with_keys) { |deep_obj, this_key|
+				last_index = index >= @lookup.size - 1
 
 				# this = object to be accessed
 				# key = key to access on this
@@ -313,22 +324,73 @@ module KeyDial
 				# Does this object already have this key?
 				if deep_obj.dial[key[:this][:value]].call(Keys::MISSING) == Keys::MISSING
 					# If not, create empty array/hash dependant on upcoming key
-						if key[:next][:value] <= -1
-							# Ensure new array big enough to address a negative key
-							deep_obj[key[:this][:value]] = Array.new(key[:next][:max])
+					if type_class_skipped
 						if key[:next][:type] == :index
+							if key[:next][:value] <= -1
+								# Ensure new array big enough to address a negative key
+								deep_obj[key[:this][:value]] = Array.new(key[:next][:max])
+							else
+								# Otherwise, can just create an empty array
+								deep_obj[key[:this][:value]] = []
+							end
 						else
-							# Otherwise, can just create an empty array
-							deep_obj[key[:this][:value]] = []
+							# Create an empty hash awaiting keys/values
+							deep_obj[key[:this][:value]] = {}
 						end
 					else
-						# Create an empty hash awaiting keys/values
-						deep_obj[key[:this][:value]] = {}
+						if type_class == Array
+							deep_obj[key[:this][:value]] = []
+						elsif type_class == Hash
+							deep_obj[key[:this][:value]] = {}
+						elsif type_class == Struct
+							# Why would you do this?
+							deep_obj[key[:this][:value]] = Coercion::Structs::EMPTY.dup
+						elsif type_class.is_a?(Class) && type_class < Struct
+							deep_obj[key[:this][:value]] = type_class.new
+						elsif type_class.respond_to?(:new)
+							begin
+								deep_obj[key[:this][:value]] = type_class.new
+							rescue
+								deep_obj[key[:this][:value]] = nil
+							end
+						else
+							deep_obj[key[:this][:value]] = nil
+						end
+					end
+				elsif !type_class_skipped && last_index && !deep_obj[key[:this][:value]].is_a?(type_class)
+					#Key already exists, but we must ensure it's of the right type
+					if type_class == Array
+						deep_obj[key[:this][:value]] = Array.from(deep_obj[key[:this][:value]])
+					elsif type_class == Hash
+						deep_obj[key[:this][:value]] = Hash.from(deep_obj[key[:this][:value]])
+					elsif type_class == Struct
+						# Why would you do this?
+						deep_obj[key[:this][:value]] = Struct.from(deep_obj[key[:this][:value]])
+					elsif type_class.is_a?(Class) && type_class < Struct
+						deep_obj[key[:this][:value]] = Struct.from(deep_obj[key[:this][:value]], type_class)
+					elsif type_class == String && deep_obj[key[:this][:value]].respond_to?(:to_s)
+						deep_obj[key[:this][:value]] = deep_obj[key[:this][:value]].to_s
+					elsif type_class == Symbol
+						if deep_obj[key[:this][:value]].respond_to?(:to_sym)
+							deep_obj[key[:this][:value]] = deep_obj[key[:this][:value]].to_s
+						elsif deep_obj[key[:this][:value]].respond_to?(:to_s)
+							deep_obj[key[:this][:value]] = deep_obj[key[:this][:value]].to_s.to_sym
+						else
+							warn "Could not coerce value to #{type_class}"
+						end
+					elsif type_class.respond_to?(:new)
+						begin
+							deep_obj[key[:this][:value]] = type_class.new
+						rescue
+							warn "Could not coerce value to #{type_class}"
+						end
+					else
+						warn "Could not coerce value to #{type_class}"
 					end
 				end
 
 				# Quit if this is the penultimate or last iteration
-				next deep_obj if index >= @lookup.size - 1
+				#next deep_obj if last_index
 
 				# Increment index manually
 				index += 1
@@ -340,11 +402,11 @@ module KeyDial
 			}
 
 			# Final access (and set) of last key in the @lookup - by this point should be guaranteed to work!
-			if value_obj_skipped
-				return obj_to_set[@lookup[-1]]
-			else
-				return obj_to_set[@lookup[-1]] = value_obj
-			end
+			#if value_obj_skipped
+			#	return obj_to_set[@lookup[-1]]
+			#else
+			#	return obj_to_set[@lookup[-1]] = value_obj
+			#end
 
 		end
 
