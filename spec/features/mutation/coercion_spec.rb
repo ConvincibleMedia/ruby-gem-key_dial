@@ -2,6 +2,26 @@ RSpec.describe KeyDial::Coercion do
 
 	describe KeyDial::Coercion::Hashes do
 
+		describe ".to_hash" do
+
+			it "aliases .to_h" do
+				expect{
+					expect({a: 1}.to_hash).to eq({a: 1}.to_h)
+				}.not_to raise_error
+			end
+
+		end
+
+		describe ".to_array" do
+
+			it "aliases .to_a" do
+				expect{
+					expect({a: 1}.to_array).to eq({a: 1}.to_a)
+				}.not_to raise_error
+			end
+
+		end
+
 		describe ".to_struct" do
 
 			it "creates anonymous Struct matching keys and values of Hash" do
@@ -92,6 +112,16 @@ RSpec.describe KeyDial::Coercion do
 		
 		end
 
+		describe ".to_array" do
+
+			it "aliases .to_a" do
+				expect{
+					expect([0, 1].to_array).to eq([0, 1].to_a)
+				}.not_to raise_error
+			end
+
+		end
+
 		describe ".to_struct" do
 
 			it "creates anonymous Struct using indices as keys" do
@@ -125,6 +155,53 @@ RSpec.describe KeyDial::Coercion do
 				expect(struct_a.values).to eq(struct_b.values)
 			end
 		
+		end
+
+	end
+
+	describe KeyDial::Coercion::Structs do
+
+		describe ".to_hash" do
+
+			it "aliases .to_h" do
+				struct = Struct.new('Test', :a, :b, :c).new(1, 2, 3)
+				expect{
+					expect(struct.to_array).to eq(struct.to_a)
+				}.not_to raise_error
+			end
+
+		end
+
+		describe ".to_array" do
+
+			it "aliases .to_h" do
+				struct = Struct.new('Test', :a, :b, :c).new(1, 2, 3)
+				expect{
+					expect(struct.to_array).to eq(struct.to_a)
+				}.not_to raise_error
+			end
+
+		end
+
+		describe ".to_struct" do
+
+			it "returns itself if no specific Struct requested" do
+				struct = Struct.new('Test', :a, :b, :c).new(1, 2, 3)
+				expect{
+					expect(struct.to_struct).to eq(struct)
+				}.not_to raise_error
+			end
+
+			it "converts into specific Struct requested" do
+				Struct.new('Test', :c, :b, :x)
+				struct = Struct.new(:a, :b, :c).new(1, 2, 3)
+				expect{
+					struct = struct.to_struct(Struct::Test)
+				}.not_to raise_error
+				expect(struct.members).to eq([:c, :b, :x])
+				expect(struct.values).to eq([3, 2, nil])
+			end
+
 		end
 
 	end

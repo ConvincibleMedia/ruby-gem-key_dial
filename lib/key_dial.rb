@@ -28,6 +28,9 @@ end
 class Hash
 	include KeyDial
 	include KeyDial::Coercion::Hashes
+
+	alias to_array to_a
+	alias to_hash to_h
 end
 
 # Bring Array and Struct into parity with Hash for key? and fetch
@@ -56,7 +59,8 @@ class Array
 		end
 	end
 
-	alias :values :to_ary
+	alias values to_ary
+	alias to_array to_a
 
 end
 
@@ -107,7 +111,9 @@ class Struct
 		end
 	end if !method_defined?(:fetch)
 
-	alias :keys :members
+	alias keys members
+	alias to_array to_a
+	alias to_hash to_h
 
 	# Structs are not empty by definition
 	def empty?; false; end

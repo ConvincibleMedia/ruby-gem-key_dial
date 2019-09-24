@@ -80,6 +80,18 @@ module KeyDial
 
 			EMPTY = Struct.new(:'0').new.freeze
 
+			# Convert a Struct to another Struct.
+			#
+			# @param type_class If a sub-class of Struct is provided, the Struct will be converted to this sub-class
+			#
+			def to_struct(type_class = nil)
+				if type_class.is_a?(Class) && type_class < Struct
+					return Struct.from(self, type_class)
+				else
+					return self
+				end
+			end
+
 			def self.included(base)
 			   	base.extend ClassMethods
 			end
