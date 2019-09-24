@@ -1,7 +1,7 @@
 require "bundler/setup"
 require "key_dial"
-require 'ice_nine'
-require 'ice_nine/core_ext/object'
+#require 'ice_nine'
+#require 'ice_nine/core_ext/object'
 require "active_support/core_ext/object/deep_dup"
 
 RSpec.configure do |config|
