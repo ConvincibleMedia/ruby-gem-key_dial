@@ -23,11 +23,11 @@ Gem::Specification.new do |spec|
     spec.require_paths = ["lib"]
     spec.required_ruby_version = '>= 2.3'
 
-    spec.add_development_dependency "bundler", "~> 1.17"
-    spec.add_development_dependency "rake", "~> 10.0"
-    spec.add_development_dependency "rspec", "~> 3.0"
-    spec.add_development_dependency "ice_nine", "~> 0.11.2"
-    spec.add_development_dependency "activesupport", "~> 5.2.2"
+    spec.add_development_dependency "bundler"
+    spec.add_development_dependency "rake"
+    spec.add_development_dependency "rspec"
+    spec.add_development_dependency "ice_nine"
+    spec.add_development_dependency "activesupport"
     spec.add_development_dependency "pry"
     spec.add_development_dependency "pry-nav"
 end

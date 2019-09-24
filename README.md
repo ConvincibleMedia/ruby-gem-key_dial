@@ -28,12 +28,12 @@ hash.call(:a, :b, :c) #=> true
 
 We use the concept of placing a phone-call: you can 'dial' any set of keys regardless of whether they exist (like entering a phone number), then finally place the 'call'. If the key is invalid for any reason you get nil/default (like a wrong number); otherwise you get the value (you're connected).
 
-This works by intermediating your request with a KeyDialler object. Trying to access keys on this object simply builds up a list of keys to use when you later place the 'call'. The call then `dig`s for the keys safely.
+This works by intermediating your request with a KeyDialler object. Trying to access keys on this object simply builds up a list of keys to use when you later place the 'call'. The call then digs for the keys safely.
 
 ## Usage
 
 ```ruby
-require 'hash_dial'
+require 'key_dial'
 ```
 
 ### Use it like `dig()`

@@ -102,15 +102,21 @@ module KeyDial
 		def call(default = (default_skipped = true; @default))
 			value = nil
 			if set? { |exists| value = exists }
+				# Key exists at key list, and we've captured it to value
 				if block_given?
+					# If block given, yield value to the block
 					return yield(value)
 				else
+					# Otherwise, just return the value
 					return value
 				end
 			else
+				# Key does not exist
 				if default.is_a?(Proc)
+					# If default provided is a Proc, don't just return this as a value - run it
 					return default.call
 				else
+					# Return the default
 					return default
 				end
 			end
@@ -199,6 +205,10 @@ module KeyDial
 			}[@lookup[-1]] = value_obj
 		end
 
+		# Forces the current list of dialled keys to be instantiated on the object.
+		#
+		# @param type_class The object class that must be instantiated at the end of the key list. Either Hash, Array or Struct (or Struct::Type). Will create a new object if the key does not exist, or coerce existing values if it does.
+		#
 		def insist!(type_class = (type_class_skipped = true; nil))
 
 			return @obj_with_keys if @lookup.empty?
