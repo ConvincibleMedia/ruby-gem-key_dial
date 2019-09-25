@@ -28,15 +28,19 @@ hash.call(:a, :b, :c) #=> true
 
 We use the concept of placing a phone-call: you can 'dial' any set of keys regardless of whether they exist (like entering a phone number), then finally place the 'call'. If the key is invalid for any reason you get nil/default (like a wrong number); otherwise you get the value (you're connected).
 
-This works by intermediating your request with a KeyDialler object. Trying to access keys on this object simply builds up a list of keys to use when you later place the 'call'. The call then `dig`s for the keys safely.
+This works by intermediating your request with a KeyDialler object. Trying to access keys on this object simply builds up a list of keys to use when you later place the 'call'. The call then digs for the keys safely.
 
 ## Usage
 
 ```ruby
-require 'hash_dial'
+require 'key_dial'
 ```
 
-### Use it like `dig()`
+### Read values inside keyed objects
+
+Get a value at some key position, if it exists; or return nil or a default.
+
+#### Use it like `dig()` or `fetch()`
 
 If you want to follow this pattern, it works in the same way. You can't change the default return value when using this pattern.
 
@@ -47,22 +51,75 @@ array.call(1, :a, 0) #=> true (i.e. array[1][:a][0])
 array.call(1, :b, 0) #=> nil (i.e. array[1][:b][0] doesn't exist)
 ```
 
-You can `call` on any Hash, Array or Struct after requiring this gem.
+You can `call` on any Hash, Array or Struct.
+
+KeyDial also monkeypatches a `fetch` method to Arrays and Structs.
 
 Note that KeyDial does not treat strings as arrays. Trying to access a key on a string will return nil or your default. (This is also how `dig()` works.)
 
-### Use key access syntax (allows default return value)
+#### Use key access syntax (allows default return value)
+
+This style maintains similar syntax between accessing keys directly (using `object[key][key]`) and accessing keys through KeyDial.
 
 ```ruby
 hash.dial[:a][4][:c].call          # Returns the value at hash[:a][4][:c] or nil
 hash.dial[:a][4][:c].call('Ooops') # Returns the value at hash[:a][4][:c] or 'Ooops'
 ```
 
-You can `dial` on any Hash, Array or Struct after requiring this gem.
+You can `dial` on any Hash, Array or Struct.
 
-### Use the KeyDialler object
+### Set values inside keyed objects
 
-If you don't do this all in one line, you can access the KeyDialler object should you want to manipulate it:
+Set some value at a keyed position. If that position isn't valid for any reason, make it so by instantiating and coercing.
+
+#### Assignment (`=`) operator
+
+```ruby
+hash.dial[:a][:b] = 6
+```
+
+#### Append (`<<`) operator
+
+Pushes a value onto an array at the specified key position.
+
+* If there isn't an array at that position already, an array will be created.
+* If there's some object other than an Array at that position, it will be coerced into an Array.
+
+```ruby
+hash.dial[:a][:b] << 6
+```
+
+#### `insist!`
+
+Forces the current dialing list of keys to instantiate in case it is invalid, and returns the value at that position.
+
+```ruby
+hash.dial[:a][0][:b].insist! #=> {}
+hash.inspect #=> {a: [{b: {}}]}
+```
+
+You can also insist on the type of object that should be instantiated, or that any current value should be coerced to:
+
+```ruby
+hash.dial[:a][0][:b].insist!(Array) #=> []
+hash.inspect #=> {a: [{b: []]}
+```
+
+#### Coerce between keyed object types
+
+Hashes, Arrays and Structs can all be converted between each other using `to_struct`, `to_hash` and `to_array`.
+
+### Work with Keys
+
+KeyDial monkeypatches `keys` and `values` methods to Array and Struct, which return an array of keys/indices and values respectively. This matches the methods available on Hash.
+
+#### `Keys.index?(obj)`
+
+Method that returns true if `obj` could be used as a numeric index in a keyed object such as an Array.
+
+### The KeyDialler object
+
+You can access the KeyDialler object should you want to manipulate it:
 
 ```ruby
 dialler = KeyDial::KeyDialler.new(struct) # Returns a KeyDialler object referencing struct

@@ -2,6 +2,11 @@
 
 require "bundler/setup"
 require "key_dial"
+require 'ice_nine'
+require 'ice_nine/core_ext/object'
+require "active_support/core_ext/object/deep_dup"
+require 'pry'
+def peep(var); Pry::ColorPrinter.pp(var); end
 
 # You can add fixtures and/or initialization code here to make experimenting
 # with your gem easier. You can also use a different console, if you like.

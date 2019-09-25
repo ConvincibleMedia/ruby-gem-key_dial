@@ -1,17 +1,33 @@
+# Essential
 .git
 .env
+
+# Windows
 *.lnk
 *.db
 *.ini
 
-/.bundle/
-/.yardoc
-/_yardoc/
-/coverage/
-/doc/
-/pkg/
-/spec/reports/
-/tmp/
+# Temp/cache/logs
+.jekyll-metadata
+.sass-cache
+.jekyll-cache
+.rspec_status
+vendor
+*.log
+*.map
+*/tmp
+*/cache
 
-# rspec failure tracking
+# Working files/dirs
+.bundle
+vendor
+.yardoc
+_yardoc
+coverage
+doc
+pkg
+spec/reports
+.vscode
+
+# RSpec
 .rspec_status
