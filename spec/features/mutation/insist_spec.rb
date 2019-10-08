@@ -97,7 +97,6 @@ RSpec.describe ".dial[...][...].insist!" do
 			end
 
 			it "creates specific Struct" do
-				Struct.new('Test', :'0')
 				test.dial[:a][:e][:x][:z].insist!(Struct::Test)
 				expect(test[:a][:e][:x][:z]).to be_a(Struct)
 				expect(test[:a][:e][:x][:z]).to eq(Struct::Test.new)
