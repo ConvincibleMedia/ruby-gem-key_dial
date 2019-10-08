@@ -380,7 +380,7 @@ module KeyDial
 						# Why would you do this?
 						deep_obj[key[:this][:value]] = Struct.from(deep_obj[key[:this][:value]])
 					elsif type_class.is_a?(Class) && type_class < Struct
-						deep_obj[key[:this][:value]] = Struct.from(deep_obj[key[:this][:value]], type_class)
+						deep_obj[key[:this][:value]] = type_class.from(deep_obj[key[:this][:value]])
 					elsif type_class == String && deep_obj[key[:this][:value]].respond_to?(:to_s)
 						deep_obj[key[:this][:value]] = deep_obj[key[:this][:value]].to_s
 					elsif type_class == Symbol
