@@ -8,6 +8,7 @@ In particular, if you try to access a key on a value that can't have keys, `dig(
 hash = {a: {b: {c: true}, d: 5}}
 
 hash.dig( :a, :d, :c) #=> TypeError: Integer does not have #dig method
+# hash.call is enabled when using KeyDial
 hash.call(:a, :d, :c) #=> nil
 hash.call(:a, :b, :c) #=> true
 ```
